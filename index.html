@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Para Você 💖</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #121212;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .player {
+      width: 90%;
+      max-width: 400px;
+      background-color: #181818;
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      position: relative;
+      z-index: 1;
+    }
+
+    .cover {
+      width: 100%;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .artist {
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .controls button {
+      background: #1DB954;
+      border: none;
+      padding: 15px 25px;
+      border-radius: 50px;
+      font-size: 16px;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .controls button:hover {
+      background: #1ed760;
+    }
+
+    .progress-container {
+      background: #404040;
+      height: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0 0 15px 0;
+      width: 100%;
+    }
+
+    .progress {
+      background: #1DB954;
+      height: 100%;
+      width: 0%;
+      border-radius: 5px;
+    }
+
+    .time {
+      font-size: 12px;
+      color: #aaa;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    /* Corações flutuando */
+    .heart {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: red;
+      transform: rotate(-45deg);
+      left: 50%;
+      bottom: 10%;
+      animation: floatUp 4s linear infinite;
+      z-index: 0;
+    }
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: red;
+      border-radius: 50%;
+    }
+
+    .heart::before {
+      top: -10px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: 10px;
+      top: 0;
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
+      100% { transform: translateX(calc(-50px + 100px * var(--rand))) translateY(-400px) rotate(-45deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="player">
+    <img src="foto.jpg" alt="Foto dela" class="cover">
+    <div class="title">Porque Sua Alegria É Tudo Pra Mim 💕</div>
+    <div class="artist">Por favor, clique no Play 💕</div>
+
+    <div class="time">
+      <span id="currentTime">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+
+    <div class="progress-container" id="progressContainer">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <div class="controls">
+      <button id="playPause">▶ Play</button>
+    </div>
+
+    <audio id="audio" src="musica.mp3"></audio>
+  </div>
+
+  <script>
+    const audio = document.getElementById("audio");
+    const playPauseBtn = document.getElementById("playPause");
+    const progress = document.getElementById("progress");
+    const progressContainer = document.getElementById("progressContainer");
+    const currentTimeEl = document.getElementById("currentTime");
+    const durationEl = document.getElementById("duration");
+    const body = document.body;
+
+    // Atualiza duração quando a música carrega
+    audio.addEventListener("loadedmetadata", () => {
+      durationEl.textContent = formatTime(audio.duration);
+    });
+
+    // Botão play/pause
+    playPauseBtn.addEventListener("click", () => {
+      if (audio.paused) {
+        audio.play();
+        playPauseBtn.textContent = "⏸ Pause";
+        startHearts();
+      } else {
+        audio.pause();
+        playPauseBtn.textContent = "▶ Play";
+      }
+    });
+
+    // Atualiza barra e tempo durante a música
+    audio.addEventListener("timeupdate", () => {
+      const percent = (audio.currentTime / audio.duration) * 100;
+      progress.style.width = percent + "%";
+      currentTimeEl.textContent = formatTime(audio.currentTime);
+    });
+
+    // Clique na barra para mudar posição
+    progressContainer.addEventListener("click", (e) => {
+      const width = progressContainer.clientWidth;
+      const clickX = e.offsetX;
+      const newTime = (clickX / width) * audio.duration;
+      audio.currentTime = newTime;
+    });
+
+    // Formata segundos para mm:ss
+    function formatTime(time) {
+      const minutes = Math.floor(time / 60);
+      const seconds = Math.floor(time % 60);
+      return `${minutes}:${seconds < 10 ? "0" + seconds : seconds}`;
+    }
+
+    // Função para criar corações flutuando
+    function startHearts() {
+      const heart = document.createElement("div");
+      heart.classList.add("heart");
+      heart.style.setProperty("--rand", Math.random());
+      heart.style.left = Math.random() * 90 + "%";
+      body.appendChild(heart);
+      setTimeout(() => heart.remove(), 4000); // remove após animação
+      if (!audio.paused) {
+        setTimeout(startHearts, 500); // cria novos corações enquanto toca
+      }
+    }
+  </script>
+</body>
+</html>
